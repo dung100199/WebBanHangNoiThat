@@ -65,6 +65,7 @@ public String doLogin(
 
     session.setAttribute("userEmail", email);
     session.setAttribute("role", userOpt.get().getRole());
+    session.setAttribute("fullname", userOpt.get().getFullname()); // thêm dòng này
 
     // Khôi phục giỏ hàng nếu có
     if (cart != null) {

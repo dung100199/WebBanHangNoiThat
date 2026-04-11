@@ -43,7 +43,7 @@ public class ReviewController {
         review.setComment(comment != null ? comment.trim() : "");
         reviewRepo.save(review);
 
-        redirectAttrs.addFlashAttribute("reviewSuccess", "✅ Cảm ơn bạn đã đánh giá!");
+        redirectAttrs.addFlashAttribute("reviewSuccess", " Cảm ơn bạn đã đánh giá!");
         return "redirect:/product/" + productId;
     }
 }

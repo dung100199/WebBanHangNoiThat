@@ -1,3 +1,4 @@
+
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -83,23 +84,18 @@
 
 <jsp:include page="header.jsp" />
 
-<!-- BREADCRUMB -->
 <div class="breadcrumb-bar">
     <a href="/home">Trang chủ</a> /
     <a href="/category/${product.category}">${product.category}</a> /
     <strong>${product.name}</strong>
 </div>
 
-<!-- NỘI DUNG CHÍNH -->
 <div class="container mt-4 mb-5">
     <div class="row">
-
-        <!-- CỘT TRÁI: ẢNH -->
         <div class="col-md-5">
             <img src="${product.image}" alt="${product.name}" class="product-img">
         </div>
 
-        <!-- CỘT GIỮA: THÔNG TIN -->
         <div class="col-md-5">
             <div class="product-name">${product.name}</div>
 
@@ -109,116 +105,100 @@
 
             <hr>
 
-            <!-- SỐ LƯỢNG + NÚT -->
-<div class="d-flex align-items-center gap-3 mb-3">
-    <div class="d-flex align-items-center border rounded" style="width:120px;">
-        <button type="button" onclick="changeQty(-1)"
-                style="width:36px; height:42px; border:none; background:white; font-size:18px;">−</button>
-        <input type="number" id="qty" value="1" min="1"
-               style="width:48px; height:42px; border:none; text-align:center; font-size:16px; font-weight:600;">
-        <button type="button" onclick="changeQty(1)"
-                style="width:36px; height:42px; border:none; background:white; font-size:18px;">+</button>
-    </div>
-    <a id="btn-buy" href="/buy-now?id=${product.id}&qty=1" class="btn flex-grow-1"
-       style="background:#1a2a5e; color:white; font-weight:700; padding:12px;">
-        Mua ngay
-    </a>
-</div>
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="d-flex align-items-center border rounded" style="width:120px;">
+                    <button type="button" onclick="changeQty(-1)" style="width:36px; height:42px; border:none; background:white; font-size:18px;">-</button>
+                    <input type="number" id="qty" value="1" min="1" style="width:48px; height:42px; border:none; text-align:center; font-size:16px; font-weight:600;">
+                    <button type="button" onclick="changeQty(1)" style="width:36px; height:42px; border:none; background:white; font-size:18px;">+</button>
+                </div>
+                <a id="btn-buy" href="/buy-now?id=${product.id}&qty=1" class="btn flex-grow-1" style="background:#1a2a5e; color:white; font-weight:700; padding:12px;">
+                    Mua ngay
+                </a>
+            </div>
 
-<div class="d-flex align-items-center gap-3">
-    <div class="d-flex align-items-center border rounded" style="width:120px;">
-        <button type="button" onclick="changeQty2(-1)"
-                style="width:36px; height:42px; border:none; background:white; font-size:18px;">−</button>
-        <input type="number" id="qty2" value="1" min="1"
-               style="width:48px; height:42px; border:none; text-align:center; font-size:16px; font-weight:600;">
-        <button type="button" onclick="changeQty2(1)"
-                style="width:36px; height:42px; border:none; background:white; font-size:18px;">+</button>
-    </div>
-    <a id="btn-cart" href="/add-to-cart?id=${product.id}&qty=1" class="btn flex-grow-1"
-       style="background:#e0e0e0; color:#333; font-weight:700; padding:12px;">
-        Thêm vào giỏ hàng
-    </a>
-</div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center border rounded" style="width:120px;">
+                    <button type="button" onclick="changeQty2(-1)" style="width:36px; height:42px; border:none; background:white; font-size:18px;">-</button>
+                    <input type="number" id="qty2" value="1" min="1" style="width:48px; height:42px; border:none; text-align:center; font-size:16px; font-weight:600;">
+                    <button type="button" onclick="changeQty2(1)" style="width:36px; height:42px; border:none; background:white; font-size:18px;">+</button>
+                </div>
+                <a id="btn-cart" href="/add-to-cart?id=${product.id}&qty=1" class="btn flex-grow-1" onclick="event.preventDefault(); addCurrentProductToCart();" style="background:#e0e0e0; color:#333; font-weight:700; padding:12px;">
+                    Thêm vào giỏ hàng
+                </a>
+            </div>
 
-<script>
-    function changeQty(delta) {
-        var input = document.getElementById('qty');
-        var val = Math.max(1, parseInt(input.value) + delta);
-        input.value = val;
-        document.getElementById('btn-buy').href = '/buy-now?id=${product.id}&qty=' + val;
-    }
+            <script>
+                function addCurrentProductToCart() {
+                    var qty = Math.max(1, parseInt(document.getElementById('qty2').value) || 1);
+                    addProductToCart(${product.id}, qty);
+                }
 
-    function changeQty2(delta) {
-        var input = document.getElementById('qty2');
-        var val = Math.max(1, parseInt(input.value) + delta);
-        input.value = val;
-        document.getElementById('btn-cart').href = '/add-to-cart?id=${product.id}&qty=' + val;
-    }
-</script>
+                function changeQty(delta) {
+                    var input = document.getElementById('qty');
+                    var val = Math.max(1, parseInt(input.value) + delta);
+                    input.value = val;
+                    document.getElementById('btn-buy').href = '/buy-now?id=${product.id}&qty=' + val;
+                }
+
+                function changeQty2(delta) {
+                    var input = document.getElementById('qty2');
+                    var val = Math.max(1, parseInt(input.value) + delta);
+                    input.value = val;
+                }
+            </script>
         </div>
 
-        <!-- CỘT PHẢI: CHÍNH SÁCH -->
         <div class="col-md-2">
             <div class="policy-box">
                 <div class="policy-item">
-                    <span class="icon">🟢</span>
+                    <span class="icon">*</span>
                     <span>Sản phẩm được <strong>miễn phí giao hàng</strong></span>
                 </div>
-
                 <h6>Chính sách bán hàng</h6>
-
                 <div class="policy-item">
-                    <span class="icon">✅</span>
+                    <span class="icon">OK</span>
                     <span>Cam kết <strong>chính hãng</strong> 100%</span>
                 </div>
                 <div class="policy-item">
-                    <span class="icon">🚚</span>
+                    <span class="icon">Ship</span>
                     <span>Miễn phí giao hàng từ <strong>800K</strong></span>
                 </div>
                 <div class="policy-item">
-                    <span class="icon">🔄</span>
+                    <span class="icon">Doi</span>
                     <span>Đổi trả miễn phí trong <strong>10 ngày</strong></span>
                 </div>
-
                 <h6 class="mt-3">Dịch vụ khác</h6>
-
                 <div class="policy-item">
-                    <span class="icon">🔧</span>
+                    <span class="icon">Fix</span>
                     <span>Sửa chữa <strong>đồng giá 150.000đ</strong></span>
                 </div>
                 <div class="policy-item">
-                    <span class="icon">🛡️</span>
+                    <span class="icon">BH</span>
                     <span>Bảo hành <strong>12 tháng</strong></span>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
 <div class="container mb-5">
     <hr>
-
-    <!-- TỔNG QUAN ĐÁNH GIÁ -->
     <div class="d-flex align-items-center gap-4 mb-4">
         <div class="text-center">
             <div style="font-size:48px; font-weight:700; color:#1a2a5e;">${avgRating}</div>
             <div style="color:#f0a500; font-size:24px;">
                 <c:forEach begin="1" end="5" var="i">
                     <c:choose>
-                        <c:when test="${i <= avgRating}">★</c:when>
-                        <c:otherwise>☆</c:otherwise>
+                        <c:when test="${i <= avgRating}">&#9733;</c:when>
+                        <c:otherwise>&#9734;</c:otherwise>
                     </c:choose>
                 </c:forEach>
             </div>
             <div style="font-size:13px; color:#888;">${totalReviews} đánh giá</div>
         </div>
-        <div style="font-size:20px; font-weight:600; color:#333;">
-            Đánh giá sản phẩm
-        </div>
+        <div style="font-size:20px; font-weight:600; color:#333;">Đánh giá sản phẩm</div>
     </div>
 
-    <!-- THÔNG BÁO -->
     <c:if test="${not empty reviewSuccess}">
         <div class="alert alert-success">${reviewSuccess}</div>
     </c:if>
@@ -227,11 +207,9 @@
     </c:if>
 
     <div class="row">
-
-        <!-- FORM ĐÁNH GIÁ -->
         <div class="col-md-4">
             <div class="card p-4 mb-4">
-                <h6 style="font-weight:700; color:#1a2a5e;">✍️ Viết đánh giá</h6>
+                <h6 style="font-weight:700; color:#1a2a5e;">Viết đánh giá</h6>
                 <c:choose>
                     <c:when test="${not empty sessionScope.userEmail}">
                         <form action="/review/add" method="post">
@@ -241,25 +219,17 @@
                                 <div class="d-flex gap-2 mt-1">
                                     <c:forEach begin="1" end="5" var="i">
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio"
-                                                   name="rating" value="${i}"
-                                                   id="star${i}"
-                                                   ${i == 5 ? 'checked' : ''} required>
-                                            <label class="form-check-label"
-                                                   for="star${i}"
-                                                   style="color:#f0a500; font-size:20px;">★</label>
+                                            <input class="form-check-input" type="radio" name="rating" value="${i}" id="star${i}" ${i == 5 ? 'checked' : ''} required>
+                                            <label class="form-check-label" for="star${i}" style="color:#f0a500; font-size:20px;">&#9733;</label>
                                         </div>
                                     </c:forEach>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label style="font-weight:600;">Nhận xét</label>
-                                <textarea name="comment" class="form-control" rows="4"
-                                          placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                                <textarea name="comment" class="form-control" rows="4" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">
-                                Gửi đánh giá
-                            </button>
+                            <button type="submit" class="btn btn-primary w-100">Gửi đánh giá</button>
                         </form>
                     </c:when>
                     <c:otherwise>
@@ -272,12 +242,11 @@
             </div>
         </div>
 
-        <!-- DANH SÁCH ĐÁNH GIÁ -->
         <div class="col-md-8">
             <c:choose>
                 <c:when test="${empty reviews}">
                     <div class="text-center py-5" style="color:#888;">
-                        <div style="font-size:40px;">💬</div>
+                        <div style="font-size:40px;">...</div>
                         <p>Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
                     </div>
                 </c:when>
@@ -286,12 +255,10 @@
                         <div class="card p-3 mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div>
-                                    <strong style="font-size:14px;">
-                                        ${r.userEmail.substring(0, 3)}***${r.userEmail.substring(r.userEmail.indexOf('@'))}
-                                    </strong>
+                                    <strong style="font-size:14px;">${r.userEmail.substring(0, 3)}***${r.userEmail.substring(r.userEmail.indexOf('@'))}</strong>
                                     <span style="color:#f0a500; margin-left:8px;">
-                                        <c:forEach begin="1" end="${r.rating}" var="s">★</c:forEach>
-                                        <c:forEach begin="${r.rating + 1}" end="5" var="s">☆</c:forEach>
+                                        <c:forEach begin="1" end="${r.rating}" var="s">&#9733;</c:forEach>
+                                        <c:forEach begin="${r.rating + 1}" end="5" var="s">&#9734;</c:forEach>
                                     </span>
                                 </div>
                                 <small style="color:#aaa;">

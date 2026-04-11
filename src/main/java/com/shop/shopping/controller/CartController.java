@@ -19,15 +19,42 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.*;
 
 import com.shop.shopping.model.Order;
-import com.shop.shopping.model.OrderItem;
-import com.shop.shopping.repository.OrderRepository;
-import com.shop.shopping.repository.OrderItemRepository;
 
 @Controller
 public class CartController {
 
     @Autowired
     private ProductRepository productRepo;
+
+    private Map<String, Object> buildCartResponse(List<CartItem> cart) {
+        Map<String, Object> response = new HashMap<>();
+        double total = 0;
+        int totalItems = 0;
+        List<Map<String, Object>> cartItems = new ArrayList<>();
+
+        if (cart == null) {
+            cart = new ArrayList<>();
+        }
+
+        for (CartItem item : cart) {
+            total += item.getProduct().getPrice() * item.getQuantity();
+            totalItems += item.getQuantity();
+
+            Map<String, Object> itemData = new HashMap<>();
+            itemData.put("id", item.getProduct().getId());
+            itemData.put("name", item.getProduct().getName());
+            itemData.put("image", item.getProduct().getImage());
+            itemData.put("price", item.getProduct().getPrice());
+            itemData.put("quantity", item.getQuantity());
+            cartItems.add(itemData);
+        }
+
+        response.put("success", true);
+        response.put("cart", cartItems);
+        response.put("total", total);
+        response.put("totalItems", totalItems);
+        return response;
+    }
 
     // ================= CART =================
 
@@ -292,5 +319,142 @@ public String cancelOrder(@RequestParam int orderId,
 
     redirectAttrs.addFlashAttribute("message", "✅ Đã hủy đơn hàng #" + orderId);
     return "redirect:/my-orders";
+}
+
+// ================= ADD TO CART AJAX =================
+@PostMapping("/add-to-cart-ajax")
+@ResponseBody
+public Map<String, Object> addToCartAjax(@RequestParam int id,
+                                         @RequestParam(defaultValue = "1") int qty,
+                                         HttpSession session) {
+    Map<String, Object> response = new HashMap<>();
+    
+    Product product = productRepo.findById(id).orElse(null);
+    if (product == null) {
+        response.put("success", false);
+        response.put("message", "Sản phẩm không tồn tại");
+        return response;
+    }
+
+    List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
+
+    if (cart == null) {
+        cart = new ArrayList<>();
+    }
+
+    boolean found = false;
+
+    for (CartItem item : cart) {
+        if (item.getProduct().getId() == id) {
+            item.setQuantity(item.getQuantity() + qty);
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        cart.add(new CartItem(product, qty));
+    }
+
+    session.setAttribute("cart", cart);
+
+    // Tính tổng tiền và số lượng
+    double total = 0;
+    int totalItems = 0;
+    List<Map<String, Object>> cartItems = new ArrayList<>();
+    
+    for (CartItem item : cart) {
+        total += item.getProduct().getPrice() * item.getQuantity();
+        totalItems += item.getQuantity();
+        
+        Map<String, Object> itemData = new HashMap<>();
+        itemData.put("id", item.getProduct().getId());
+        itemData.put("name", item.getProduct().getName());
+        itemData.put("image", item.getProduct().getImage());
+        itemData.put("price", item.getProduct().getPrice());
+        itemData.put("quantity", item.getQuantity());
+        cartItems.add(itemData);
+    }
+
+    response.put("success", true);
+    response.put("message", "Đã thêm sản phẩm vào giỏ hàng");
+    response.put("cart", cartItems);
+    response.put("total", total);
+    response.put("totalItems", totalItems);
+    
+    return response;
+}
+
+// ================= REMOVE FROM CART AJAX =================
+@PostMapping("/remove-cart-ajax")
+@ResponseBody
+public Map<String, Object> removeCartAjax(@RequestParam int id, HttpSession session) {
+    Map<String, Object> response = new HashMap<>();
+    
+    List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
+    if (cart != null) {
+        cart.removeIf(item -> item.getProduct().getId() == id);
+        session.setAttribute("cart", cart);
+        
+        // Tính lại tổng
+        double total = 0;
+        int totalItems = 0;
+        List<Map<String, Object>> cartItems = new ArrayList<>();
+        
+        for (CartItem item : cart) {
+            total += item.getProduct().getPrice() * item.getQuantity();
+            totalItems += item.getQuantity();
+            
+            Map<String, Object> itemData = new HashMap<>();
+            itemData.put("id", item.getProduct().getId());
+            itemData.put("name", item.getProduct().getName());
+            itemData.put("image", item.getProduct().getImage());
+            itemData.put("price", item.getProduct().getPrice());
+            itemData.put("quantity", item.getQuantity());
+            cartItems.add(itemData);
+        }
+        
+        response.put("success", true);
+        response.put("cart", cartItems);
+        response.put("total", total);
+        response.put("totalItems", totalItems);
+    } else {
+        response.put("success", false);
+    }
+    
+    return response;
+}
+
+@GetMapping("/cart-data")
+@ResponseBody
+public Map<String, Object> getCartData(HttpSession session) {
+    List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
+    Map<String, Object> response = new HashMap<>();
+    double total = 0;
+    int totalItems = 0;
+    List<Map<String, Object>> cartItems = new ArrayList<>();
+
+    if (cart == null) {
+        cart = new ArrayList<>();
+    }
+
+    for (CartItem item : cart) {
+        total += item.getProduct().getPrice() * item.getQuantity();
+        totalItems += item.getQuantity();
+
+        Map<String, Object> itemData = new HashMap<>();
+        itemData.put("id", item.getProduct().getId());
+        itemData.put("name", item.getProduct().getName());
+        itemData.put("image", item.getProduct().getImage());
+        itemData.put("price", item.getProduct().getPrice());
+        itemData.put("quantity", item.getQuantity());
+        cartItems.add(itemData);
+    }
+
+    response.put("success", true);
+    response.put("cart", cartItems);
+    response.put("total", total);
+    response.put("totalItems", totalItems);
+    return response;
 }
 }

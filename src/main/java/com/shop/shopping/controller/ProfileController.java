@@ -58,6 +58,8 @@ public class ProfileController {
         user.setAddress(address);
         userRepo.save(user);
 
+        session.setAttribute("fullname", fullname);
+
         redirectAttrs.addFlashAttribute("message", "✅ Cập nhật thông tin thành công!");
         return "redirect:/profile";
     }
