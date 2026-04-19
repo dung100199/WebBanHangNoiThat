@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
@@ -30,12 +32,12 @@ public class AdminController {
 
     // Trang admin
     @GetMapping("")
-public String adminPage(Model model, HttpSession session) {
-    if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
-    model.addAttribute("products", repo.findAll());
-    model.addAttribute("orders", orderRepo.findAll());
-    return "admin";
-}
+    public String adminPage(Model model, HttpSession session) {
+        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
+        model.addAttribute("products", repo.findAll());
+        model.addAttribute("orders", orderRepo.findAll());
+        return "admin";
+    }
 
     // Thêm 1 sản phẩm
     @PostMapping("/add-product")
@@ -46,9 +48,7 @@ public String adminPage(Model model, HttpSession session) {
                              HttpSession session,
                              RedirectAttributes redirectAttrs) {
 
-        if (!"ADMIN".equals(session.getAttribute("role"))) {
-            return "redirect:/home";
-        }
+        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
 
         String searchKeyword = (keyword == null || keyword.isEmpty()) ? name : keyword;
         String imageUrl = unsplashService.getImageUrl(searchKeyword);
@@ -60,7 +60,7 @@ public String adminPage(Model model, HttpSession session) {
         product.setImage(imageUrl);
         repo.save(product);
 
-        redirectAttrs.addFlashAttribute("message", " Đã thêm sản phẩm: " + name);
+        redirectAttrs.addFlashAttribute("message", "✅ Đã thêm sản phẩm: " + name);
         return "redirect:/admin";
     }
 
@@ -70,9 +70,7 @@ public String adminPage(Model model, HttpSession session) {
                               HttpSession session,
                               RedirectAttributes redirectAttrs) {
 
-        if (!"ADMIN".equals(session.getAttribute("role"))) {
-            return "redirect:/home";
-        }
+        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
 
         int count = 0;
         try {
@@ -104,85 +102,101 @@ public String adminPage(Model model, HttpSession session) {
             return "redirect:/admin";
         }
 
-        redirectAttrs.addFlashAttribute("message", " Import thành công " + count + " sản phẩm!");
+        redirectAttrs.addFlashAttribute("message", "✅ Import thành công " + count + " sản phẩm!");
         return "redirect:/admin";
     }
 
-    // Xóa sản phẩm
-@GetMapping("/delete-product")
-public String deleteProduct(@RequestParam int id,
-                            HttpSession session,
-                            RedirectAttributes redirectAttrs) {
-    if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
-    repo.deleteById(id);
-    redirectAttrs.addFlashAttribute("message", " Đã xóa sản phẩm!");
-    return "redirect:/admin";
-}
-
-// Cập nhật trạng thái đơn hàng
-@PostMapping("/update-order-status")
-public String updateOrderStatus(@RequestParam int orderId,
-                                @RequestParam String status,
+    // Xóa 1 sản phẩm
+    @GetMapping("/delete-product")
+    public String deleteProduct(@RequestParam int id,
                                 HttpSession session,
                                 RedirectAttributes redirectAttrs) {
-    if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
-    Order order = orderRepo.findById(orderId).orElse(null);
-    if (order != null) {
-        order.setStatus(status);
-        orderRepo.save(order);
-    }
-    redirectAttrs.addFlashAttribute("message", " Đã cập nhật trạng thái đơn #" + orderId);
-    return "redirect:/admin";
-}
-
-// Mở form sửa sản phẩm
-@GetMapping("/edit-product/{id}")
-public String editProductForm(@PathVariable int id,
-                               HttpSession session,
-                               Model model) {
-    if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
-
-    Product product = repo.findById(id).orElse(null);
-    if (product == null) return "redirect:/admin";
-
-    model.addAttribute("product", product);
-    model.addAttribute("products", repo.findAll());
-    model.addAttribute("orders", orderRepo.findAll());
-    return "admin";
-}
-
-// Lưu sản phẩm sau khi sửa
-@PostMapping("/edit-product")
-public String editProduct(@RequestParam int id,
-                          @RequestParam String name,
-                          @RequestParam double price,
-                          @RequestParam String category,
-                          @RequestParam(required = false) String keyword,
-                          @RequestParam(required = false) String image,
-                          HttpSession session,
-                          RedirectAttributes redirectAttrs) {
-
-    if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
-
-    Product product = repo.findById(id).orElse(null);
-    if (product == null) return "redirect:/admin";
-
-    product.setName(name);
-    product.setPrice(price);
-    product.setCategory(category);
-
-    // Nếu nhập keyword mới thì lấy ảnh mới từ Unsplash
-    if (keyword != null && !keyword.isEmpty()) {
-        product.setImage(unsplashService.getImageUrl(keyword));
-    }
-    // Nếu nhập link ảnh trực tiếp thì dùng link đó
-    else if (image != null && !image.isEmpty()) {
-        product.setImage(image);
+        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
+        repo.deleteById(id);
+        redirectAttrs.addFlashAttribute("message", "✅ Đã xóa sản phẩm!");
+        return "redirect:/admin";
     }
 
-    repo.save(product);
-    redirectAttrs.addFlashAttribute("message", "✅ Đã cập nhật sản phẩm: " + name);
-    return "redirect:/admin";
-}
+    // ✅ Xóa nhiều sản phẩm cùng lúc
+    @PostMapping("/delete-products")
+    public String deleteProducts(@RequestParam(value = "ids", required = false) List<Integer> ids,
+                                 HttpSession session,
+                                 RedirectAttributes redirectAttrs) {
+        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
 
+        if (ids == null || ids.isEmpty()) {
+            redirectAttrs.addFlashAttribute("message", "⚠️ Chưa chọn sản phẩm nào!");
+            return "redirect:/admin";
+        }
+
+        for (int id : ids) {
+            repo.deleteById(id);
+        }
+
+        redirectAttrs.addFlashAttribute("message", "✅ Đã xóa " + ids.size() + " sản phẩm!");
+        return "redirect:/admin";
+    }
+
+    // Cập nhật trạng thái đơn hàng
+    @PostMapping("/update-order-status")
+    public String updateOrderStatus(@RequestParam int orderId,
+                                    @RequestParam String status,
+                                    HttpSession session,
+                                    RedirectAttributes redirectAttrs) {
+        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
+        Order order = orderRepo.findById(orderId).orElse(null);
+        if (order != null) {
+            order.setStatus(status);
+            orderRepo.save(order);
+        }
+        redirectAttrs.addFlashAttribute("message", "✅ Đã cập nhật trạng thái đơn #" + orderId);
+        return "redirect:/admin";
+    }
+
+    // Mở form sửa sản phẩm
+    @GetMapping("/edit-product/{id}")
+    public String editProductForm(@PathVariable int id,
+                                  HttpSession session,
+                                  Model model) {
+        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
+
+        Product product = repo.findById(id).orElse(null);
+        if (product == null) return "redirect:/admin";
+
+        model.addAttribute("product", product);
+        model.addAttribute("products", repo.findAll());
+        model.addAttribute("orders", orderRepo.findAll());
+        return "admin";
+    }
+
+    // Lưu sản phẩm sau khi sửa
+    @PostMapping("/edit-product")
+    public String editProduct(@RequestParam int id,
+                              @RequestParam String name,
+                              @RequestParam double price,
+                              @RequestParam String category,
+                              @RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) String image,
+                              HttpSession session,
+                              RedirectAttributes redirectAttrs) {
+
+        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
+
+        Product product = repo.findById(id).orElse(null);
+        if (product == null) return "redirect:/admin";
+
+        product.setName(name);
+        product.setPrice(price);
+        product.setCategory(category);
+
+        if (keyword != null && !keyword.isEmpty()) {
+            product.setImage(unsplashService.getImageUrl(keyword));
+        } else if (image != null && !image.isEmpty()) {
+            product.setImage(image);
+        }
+
+        repo.save(product);
+        redirectAttrs.addFlashAttribute("message", "✅ Đã cập nhật sản phẩm: " + name);
+        return "redirect:/admin";
+    }
 }

@@ -125,9 +125,9 @@
 
             <c:choose>
                 <c:when test="${sessionScope.role == 'ADMIN'}">
-                    <a href="/admin">🔧 Quản lý</a>
+                    <a href="/admin"> Quản lý</a>
                     <span> | </span>
-                    <a href="/profile">👤 Tài khoản</a>
+                    <a href="/profile"> Tài khoản</a>
                     <span> | </span>
                     <form method="post" action="/logout" style="display:inline;">
                         <button class="logout-btn" type="submit">Đăng xuất</button>
@@ -135,9 +135,9 @@
                 </c:when>
 
                 <c:otherwise>
-                    <a href="/my-orders">📦 Đơn hàng</a>
+                    <a href="/my-orders"> Đơn hàng</a>
                     <span> | </span>
-                    <a href="/profile">👤 Tài khoản</a>
+                    <a href="/profile"> Tài khoản</a>
                     <span> | </span>
                     <form method="post" action="/logout" style="display:inline;">
                         <button class="logout-btn" type="submit">Đăng xuất</button>

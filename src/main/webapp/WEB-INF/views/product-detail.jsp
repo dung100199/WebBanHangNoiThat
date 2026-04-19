@@ -1,4 +1,3 @@
-
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -16,10 +15,7 @@
             font-size: 13px;
             color: #888;
         }
-        .breadcrumb-bar a {
-            color: #888;
-            text-decoration: none;
-        }
+        .breadcrumb-bar a { color: #888; text-decoration: none; }
         .breadcrumb-bar a:hover { color: #1a2a5e; }
 
         .product-img {
@@ -28,56 +24,41 @@
             border: 1px solid #eee;
             object-fit: cover;
         }
-        .product-name {
-            font-size: 26px;
-            font-weight: 700;
-            color: #1a2a5e;
-        }
-        .product-price {
-            font-size: 24px;
-            font-weight: 700;
-            color: #e00;
-            margin: 12px 0;
-        }
-        .btn-cart {
-            background-color: #1a2a5e;
-            color: white;
-            border: none;
-            padding: 14px 0;
-            font-size: 16px;
-            border-radius: 6px;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        .btn-cart:hover { background-color: #0f1a3e; color: white; }
-        .btn-buy {
-            background-color: #e00;
-            color: white;
-            border: none;
-            padding: 14px 0;
-            font-size: 16px;
-            border-radius: 6px;
-            width: 100%;
-        }
-        .btn-buy:hover { background-color: #b00; color: white; }
+        .product-name { font-size: 26px; font-weight: 700; color: #1a2a5e; }
+        .product-price { font-size: 24px; font-weight: 700; color: #e00; margin: 12px 0; }
+
         .policy-box {
             border: 1px solid #eee;
             border-radius: 8px;
             padding: 20px;
             font-size: 14px;
         }
-        .policy-box h6 {
+        .policy-box h6 { font-weight: 700; margin-bottom: 12px; color: #1a2a5e; }
+        .policy-item { display: flex; align-items: flex-start; margin-bottom: 12px; gap: 10px; }
+
+        .admin-reply-box {
+            background: #f0f4ff;
+            border-left: 4px solid #1a2a5e;
+            border-radius: 0 6px 6px 0;
+            padding: 10px 14px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .admin-reply-box .reply-label {
             font-weight: 700;
-            margin-bottom: 12px;
             color: #1a2a5e;
+            margin-bottom: 4px;
+            font-size: 12px;
         }
-        .policy-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 12px;
-            gap: 10px;
+        .admin-reply-form {
+            background: #fffbea;
+            border: 1px dashed #f0a500;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-top: 10px;
         }
-        .policy-item .icon { font-size: 18px; margin-top: 2px; }
+        .admin-reply-form textarea { font-size: 13px; resize: vertical; }
+        .btn-admin-sm { font-size: 12px; padding: 3px 10px; }
     </style>
 </head>
 <body>
@@ -92,95 +73,77 @@
 
 <div class="container mt-4 mb-5">
     <div class="row">
+
         <div class="col-md-5">
             <img src="${product.image}" alt="${product.name}" class="product-img">
         </div>
 
         <div class="col-md-5">
             <div class="product-name">${product.name}</div>
-
             <div class="product-price">
                 <fmt:formatNumber value="${product.price}" type="number" maxFractionDigits="0"/>đ
             </div>
-
             <hr>
 
-            <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="d-flex align-items-center border rounded" style="width:120px;">
-                    <button type="button" onclick="changeQty(-1)" style="width:36px; height:42px; border:none; background:white; font-size:18px;">-</button>
-                    <input type="number" id="qty" value="1" min="1" style="width:48px; height:42px; border:none; text-align:center; font-size:16px; font-weight:600;">
-                    <button type="button" onclick="changeQty(1)" style="width:36px; height:42px; border:none; background:white; font-size:18px;">+</button>
-                </div>
-                <a id="btn-buy" href="/buy-now?id=${product.id}&qty=1" class="btn flex-grow-1" style="background:#1a2a5e; color:white; font-weight:700; padding:12px;">
-                    Mua ngay
-                </a>
-            </div>
+            <c:choose>
+                <c:when test="${sessionScope.role == 'ADMIN'}">
+                    
+                </c:when>
+                <c:otherwise>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="d-flex align-items-center border rounded" style="width:120px;">
+                            <button type="button" onclick="changeQty(-1)"
+                                    style="width:36px; height:42px; border:none; background:white; font-size:18px;">-</button>
+                            <input type="number" id="qty" value="1" min="1"
+                                   oninput="updateBuyNowQty()"
+                                   style="width:48px; height:42px; border:none; text-align:center; font-size:16px; font-weight:600;">
+                            <button type="button" onclick="changeQty(1)"
+                                    style="width:36px; height:42px; border:none; background:white; font-size:18px;">+</button>
+                        </div>
+                        <a id="btn-buy" href="/buy-now?id=${product.id}&qty=1"
+                           class="btn flex-grow-1"
+                           style="background:#1a2a5e; color:white; font-weight:700; padding:12px;">
+                            Mua ngay
+                        </a>
+                    </div>
 
-            <div class="d-flex align-items-center gap-3">
-                <div class="d-flex align-items-center border rounded" style="width:120px;">
-                    <button type="button" onclick="changeQty2(-1)" style="width:36px; height:42px; border:none; background:white; font-size:18px;">-</button>
-                    <input type="number" id="qty2" value="1" min="1" style="width:48px; height:42px; border:none; text-align:center; font-size:16px; font-weight:600;">
-                    <button type="button" onclick="changeQty2(1)" style="width:36px; height:42px; border:none; background:white; font-size:18px;">+</button>
-                </div>
-                <a id="btn-cart" href="/add-to-cart?id=${product.id}&qty=1" class="btn flex-grow-1" onclick="event.preventDefault(); addCurrentProductToCart();" style="background:#e0e0e0; color:#333; font-weight:700; padding:12px;">
-                    Thêm vào giỏ hàng
-                </a>
-            </div>
-
-            <script>
-                function addCurrentProductToCart() {
-                    var qty = Math.max(1, parseInt(document.getElementById('qty2').value) || 1);
-                    addProductToCart(${product.id}, qty);
-                }
-
-                function changeQty(delta) {
-                    var input = document.getElementById('qty');
-                    var val = Math.max(1, parseInt(input.value) + delta);
-                    input.value = val;
-                    document.getElementById('btn-buy').href = '/buy-now?id=${product.id}&qty=' + val;
-                }
-
-                function changeQty2(delta) {
-                    var input = document.getElementById('qty2');
-                    var val = Math.max(1, parseInt(input.value) + delta);
-                    input.value = val;
-                }
-            </script>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center border rounded" style="width:120px;">
+                            <button type="button" onclick="changeQty2(-1)"
+                                    style="width:36px; height:42px; border:none; background:white; font-size:18px;">-</button>
+                            <input type="number" id="qty2" value="1" min="1"
+                                   style="width:48px; height:42px; border:none; text-align:center; font-size:16px; font-weight:600;">
+                            <button type="button" onclick="changeQty2(1)"
+                                    style="width:36px; height:42px; border:none; background:white; font-size:18px;">+</button>
+                        </div>
+                        <a id="btn-cart" href="/add-to-cart?id=${product.id}&qty=1"
+                           class="btn flex-grow-1"
+                           onclick="event.preventDefault(); addCurrentProductToCart();"
+                           style="background:#e0e0e0; color:#333; font-weight:700; padding:12px;">
+                            Thêm vào giỏ hàng
+                        </a>
+                    </div>
+                </c:otherwise>
+            </c:choose>
         </div>
 
         <div class="col-md-2">
             <div class="policy-box">
-                <div class="policy-item">
-                    <span class="icon">*</span>
-                    <span>Sản phẩm được <strong>miễn phí giao hàng</strong></span>
-                </div>
+                <div class="policy-item"><span>Sản phẩm được <strong>miễn phí giao hàng</strong></span></div>
                 <h6>Chính sách bán hàng</h6>
-                <div class="policy-item">
-                    <span class="icon">OK</span>
-                    <span>Cam kết <strong>chính hãng</strong> 100%</span>
-                </div>
-                <div class="policy-item">
-                    <span class="icon">Ship</span>
-                    <span>Miễn phí giao hàng từ <strong>800K</strong></span>
-                </div>
-                <div class="policy-item">
-                    <span class="icon">Doi</span>
-                    <span>Đổi trả miễn phí trong <strong>10 ngày</strong></span>
-                </div>
+                <div class="policy-item"><span>Cam kết <strong>chính hãng</strong> 100%</span></div>
+                <div class="policy-item"><span>Miễn phí giao hàng từ <strong>800K</strong></span></div>
+                <div class="policy-item"><span>Đổi trả miễn phí trong <strong>10 ngày</strong></span></div>
                 <h6 class="mt-3">Dịch vụ khác</h6>
-                <div class="policy-item">
-                    <span class="icon">Fix</span>
-                    <span>Sửa chữa <strong>đồng giá 150.000đ</strong></span>
-                </div>
-                <div class="policy-item">
-                    <span class="icon">BH</span>
-                    <span>Bảo hành <strong>12 tháng</strong></span>
-                </div>
+                <div class="policy-item"><span>Sửa chữa <strong>đồng giá 150.000đ</strong></span></div>
+                <div class="policy-item"><span>Bảo hành <strong>12 tháng</strong></span></div>
             </div>
         </div>
+
     </div>
 </div>
 
+<!-- ===================== ĐÁNH GIÁ ===================== -->
 <div class="container mb-5">
     <hr>
     <div class="d-flex align-items-center gap-4 mb-4">
@@ -205,12 +168,22 @@
     <c:if test="${not empty reviewError}">
         <div class="alert alert-danger">${reviewError}</div>
     </c:if>
+    <c:if test="${not empty message}">
+        <div class="alert alert-success">${message}</div>
+    </c:if>
 
     <div class="row">
+
+        <!-- Form viết đánh giá -->
         <div class="col-md-4">
             <div class="card p-4 mb-4">
                 <h6 style="font-weight:700; color:#1a2a5e;">Viết đánh giá</h6>
                 <c:choose>
+                    <c:when test="${sessionScope.role == 'ADMIN'}">
+                        <div class="text-center py-3">
+                            <p style="color:#888; font-size:14px;">Admin không thể đánh giá sản phẩm.</p>
+                        </div>
+                    </c:when>
                     <c:when test="${not empty sessionScope.userEmail}">
                         <form action="/review/add" method="post">
                             <input type="hidden" name="productId" value="${product.id}">
@@ -219,15 +192,18 @@
                                 <div class="d-flex gap-2 mt-1">
                                     <c:forEach begin="1" end="5" var="i">
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="rating" value="${i}" id="star${i}" ${i == 5 ? 'checked' : ''} required>
-                                            <label class="form-check-label" for="star${i}" style="color:#f0a500; font-size:20px;">&#9733;</label>
+                                            <input class="form-check-input" type="radio" name="rating"
+                                                   value="${i}" id="star${i}" ${i == 5 ? 'checked' : ''} required>
+                                            <label class="form-check-label" for="star${i}"
+                                                   style="color:#f0a500; font-size:20px;">&#9733;</label>
                                         </div>
                                     </c:forEach>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label style="font-weight:600;">Nhận xét</label>
-                                <textarea name="comment" class="form-control" rows="4" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                                <textarea name="comment" class="form-control" rows="4"
+                                          placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Gửi đánh giá</button>
                         </form>
@@ -242,6 +218,7 @@
             </div>
         </div>
 
+        <!-- Danh sách đánh giá -->
         <div class="col-md-8">
             <c:choose>
                 <c:when test="${empty reviews}">
@@ -253,21 +230,90 @@
                 <c:otherwise>
                     <c:forEach var="r" items="${reviews}">
                         <div class="card p-3 mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                            <!-- Header review -->
+                            <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
-                                    <strong style="font-size:14px;">${r.userEmail.substring(0, 3)}***${r.userEmail.substring(r.userEmail.indexOf('@'))}</strong>
+                                    <strong style="font-size:14px;">
+                                        ${r.userEmail.substring(0, 3)}***${r.userEmail.substring(r.userEmail.indexOf('@'))}
+                                    </strong>
                                     <span style="color:#f0a500; margin-left:8px;">
                                         <c:forEach begin="1" end="${r.rating}" var="s">&#9733;</c:forEach>
                                         <c:forEach begin="${r.rating + 1}" end="5" var="s">&#9734;</c:forEach>
                                     </span>
                                 </div>
-                                <small style="color:#aaa;">
-                                    <fmt:formatDate value="${r.createdAt}" pattern="dd/MM/yyyy"/>
-                                </small>
+                                <div class="d-flex align-items-center gap-2">
+                                    <small style="color:#aaa;">
+                                        <fmt:formatDate value="${r.createdAt}" pattern="dd/MM/yyyy"/>
+                                    </small>
+                                    <%-- ✅ Nút xóa review - chỉ admin --%>
+                                    <c:if test="${sessionScope.role == 'ADMIN'}">
+                                        <form action="/admin/review/delete" method="post" style="margin:0;"
+                                              onsubmit="return confirm('Xóa đánh giá này?')">
+                                            <input type="hidden" name="reviewId" value="${r.id}">
+                                            <input type="hidden" name="productId" value="${product.id}">
+                                            <button type="submit" class="btn btn-danger btn-admin-sm">🗑 Xóa</button>
+                                        </form>
+                                    </c:if>
+                                </div>
                             </div>
+
+                            <!-- Nội dung đánh giá -->
                             <c:if test="${not empty r.comment}">
-                                <p style="font-size:14px; color:#555; margin:0;">${r.comment}</p>
+                                <p style="font-size:14px; color:#555; margin:0 0 6px 0;">${r.comment}</p>
                             </c:if>
+
+                            <%-- ✅ Hiển thị reply đã có (tất cả user đều thấy) --%>
+                            <c:if test="${not empty r.adminReply}">
+                                <div class="admin-reply-box">
+                                    <div class="reply-label">💬 Phản hồi từ cửa hàng:</div>
+                                    <div>${r.adminReply}</div>
+                                    <%-- Admin thấy thêm nút sửa/xóa reply --%>
+                                    <c:if test="${sessionScope.role == 'ADMIN'}">
+                                        <div class="d-flex gap-2 mt-2">
+                                            <button type="button"
+                                                    onclick="toggleReplyForm('reply-form-${r.id}')"
+                                                    class="btn btn-warning btn-admin-sm">✏️ Sửa reply</button>
+                                            <form action="/admin/review/delete-reply" method="post" style="margin:0;">
+                                                <input type="hidden" name="reviewId" value="${r.id}">
+                                                <input type="hidden" name="productId" value="${product.id}">
+                                                <button type="submit" class="btn btn-outline-danger btn-admin-sm">
+                                                    🗑 Xóa reply
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </c:if>
+                                </div>
+                            </c:if>
+
+                            <%-- ✅ Form reply - chỉ admin thấy --%>
+                            <c:if test="${sessionScope.role == 'ADMIN'}">
+                                <div id="reply-form-${r.id}"
+                                     class="admin-reply-form"
+                                     style="${not empty r.adminReply ? 'display:none;' : ''}">
+                                    <div style="font-size:12px; font-weight:700; color:#856404; margin-bottom:6px;">
+                                        💬 ${not empty r.adminReply ? 'Sửa' : 'Trả lời'} đánh giá này:
+                                    </div>
+                                    <form action="/admin/review/reply" method="post">
+                                        <input type="hidden" name="reviewId" value="${r.id}">
+                                        <input type="hidden" name="productId" value="${product.id}">
+                                        <textarea name="reply" class="form-control mb-2" rows="2"
+                                                  placeholder="Nhập phản hồi của cửa hàng..."
+                                                  required>${r.adminReply}</textarea>
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-primary btn-admin-sm">
+                                                ✅ Gửi phản hồi
+                                            </button>
+                                            <c:if test="${not empty r.adminReply}">
+                                                <button type="button"
+                                                        onclick="toggleReplyForm('reply-form-${r.id}')"
+                                                        class="btn btn-outline-secondary btn-admin-sm">Hủy</button>
+                                            </c:if>
+                                        </div>
+                                    </form>
+                                </div>
+                            </c:if>
+
                         </div>
                     </c:forEach>
                 </c:otherwise>
@@ -277,6 +323,37 @@
 </div>
 
 <jsp:include page="footer.jsp" />
+
+<script>
+    function changeQty(delta) {
+        var input = document.getElementById('qty');
+        var val = Math.max(1, parseInt(input.value || 1) + delta);
+        input.value = val;
+        document.getElementById('btn-buy').href = '/buy-now?id=${product.id}&qty=' + val;
+    }
+
+    function updateBuyNowQty() {
+        var val = Math.max(1, parseInt(document.getElementById('qty').value) || 1);
+        document.getElementById('qty').value = val;
+        document.getElementById('btn-buy').href = '/buy-now?id=${product.id}&qty=' + val;
+    }
+
+    function changeQty2(delta) {
+        var input = document.getElementById('qty2');
+        var val = Math.max(1, parseInt(input.value || 1) + delta);
+        input.value = val;
+    }
+
+    function addCurrentProductToCart() {
+        var qty = Math.max(1, parseInt(document.getElementById('qty2').value) || 1);
+        addProductToCart(${product.id}, qty);
+    }
+
+    function toggleReplyForm(id) {
+        var form = document.getElementById(id);
+        form.style.display = (form.style.display === 'none') ? 'block' : 'none';
+    }
+</script>
 
 </body>
 </html>

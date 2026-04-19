@@ -146,9 +146,9 @@
                         <div>
                             <span class="payment-badge">
                                 <c:choose>
-                                    <c:when test="${order.payment == 'bank'}">🏦 Chuyển khoản</c:when>
-                                    <c:when test="${order.payment == 'qr'}">📱 QR</c:when>
-                                    <c:when test="${order.payment == 'cod'}">💵 COD</c:when>
+                                    <c:when test="${order.payment == 'bank'}"> Chuyển khoản</c:when>
+                                    <c:when test="${order.payment == 'qr'}"> QR</c:when>
+                                    <c:when test="${order.payment == 'cod'}"> COD</c:when>
                                 </c:choose>
                             </span>
                             &nbsp;

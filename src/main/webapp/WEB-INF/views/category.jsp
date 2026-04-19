@@ -320,12 +320,14 @@
                             <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/> VND
                         </p>
 
+                        <c:if test="${sessionScope.role != 'ADMIN'}">
                         <button 
                             onclick="addToCart(${p.id})" 
                             class="btn btn-success btn-sm btn-add-cart"
                             id="btn-${p.id}">
                             <span class="btn-text">Thêm</span>
                         </button>
+                    </c:if>
 
                     </div>
                 </div>

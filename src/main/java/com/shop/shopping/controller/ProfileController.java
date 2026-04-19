@@ -60,7 +60,7 @@ public class ProfileController {
 
         session.setAttribute("fullname", fullname);
 
-        redirectAttrs.addFlashAttribute("message", "✅ Cập nhật thông tin thành công!");
+        redirectAttrs.addFlashAttribute("message", " Cập nhật thông tin thành công!");
         return "redirect:/profile";
     }
 
@@ -80,26 +80,26 @@ public class ProfileController {
 
         // Kiểm tra mật khẩu hiện tại
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
-            redirectAttrs.addFlashAttribute("passError", "❌ Mật khẩu hiện tại không đúng!");
+            redirectAttrs.addFlashAttribute("passError", " Mật khẩu hiện tại không đúng!");
             return "redirect:/profile";
         }
 
         // Kiểm tra xác nhận mật khẩu
         if (!newPassword.equals(confirmPassword)) {
-            redirectAttrs.addFlashAttribute("passError", "❌ Mật khẩu xác nhận không khớp!");
+            redirectAttrs.addFlashAttribute("passError", " Mật khẩu xác nhận không khớp!");
             return "redirect:/profile";
         }
 
         // Kiểm tra độ dài
         if (newPassword.length() < 6) {
-            redirectAttrs.addFlashAttribute("passError", "❌ Mật khẩu phải có ít nhất 6 ký tự!");
+            redirectAttrs.addFlashAttribute("passError", " Mật khẩu phải có ít nhất 6 ký tự!");
             return "redirect:/profile";
         }
 
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         userRepo.save(user);
 
-        redirectAttrs.addFlashAttribute("passSuccess", "✅ Đổi mật khẩu thành công!");
+        redirectAttrs.addFlashAttribute("passSuccess", " Đổi mật khẩu thành công!");
         return "redirect:/profile";
     }
 }

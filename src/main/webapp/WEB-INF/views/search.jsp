@@ -58,10 +58,12 @@
                                                       type="number"
                                                       maxFractionDigits="0"/> VND
                                 </p>
-                                <a href="/add-to-cart?id=${p.id}"
-                                   class="btn btn-success btn-sm">
-                                    🛒 Thêm
-                                </a>
+                                <c:if test="${sessionScope.role != 'ADMIN'}">
+                                    <a href="/add-to-cart?id=${p.id}"
+                                    class="btn btn-success btn-sm">
+                                        🛒 Thêm
+                                    </a>
+                                </c:if>
                             </div>
                         </div>
                     </div>

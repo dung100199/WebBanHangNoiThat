@@ -70,7 +70,7 @@
 
                     <!-- FORM ĐỔI MẬT KHẨU -->
                     <div class="bg-white rounded border p-4 mb-4">
-                        <div class="section-title">🔒 Đổi mật khẩu</div>
+                        <div class="section-title"> Đổi mật khẩu</div>
                         <form action="/profile/change-password" method="post">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Mật khẩu hiện tại</label>
@@ -148,7 +148,7 @@
 
                     <!-- FORM ĐỔI MẬT KHẨU -->
                     <div class="bg-white rounded border p-4 mb-4">
-                        <div class="section-title">🔒 Đổi mật khẩu</div>
+                        <div class="section-title"> Đổi mật khẩu</div>
                         <form action="/profile/change-password" method="post">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Mật khẩu hiện tại</label>
@@ -166,7 +166,7 @@
                                        class="form-control" minlength="6" required>
                             </div>
                             <button type="submit" class="btn btn-warning w-100">
-                                🔑 Đổi mật khẩu
+                                 Đổi mật khẩu
                             </button>
                         </form>
                     </div>
@@ -175,12 +175,12 @@
                 <!-- CỘT PHẢI: LỊCH SỬ ĐƠN HÀNG -->
                 <div class="col-md-6">
                     <div class="bg-white rounded border p-4">
-                        <div class="section-title">📦 Đơn hàng gần đây</div>
+                        <div class="section-title"> Đơn hàng gần đây</div>
 
                         <c:choose>
                             <c:when test="${empty orders}">
                                 <div class="text-center py-4" style="color:#888;">
-                                    <div style="font-size:40px;">🛒</div>
+                                    <div style="font-size:40px;"></div>
                                     <p>Chưa có đơn hàng nào</p>
                                     <a href="/home" class="btn btn-dark btn-sm">Mua sắm ngay</a>
                                 </div>

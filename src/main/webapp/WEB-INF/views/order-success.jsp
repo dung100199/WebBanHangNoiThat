@@ -140,7 +140,7 @@
                     </div>
 
                     <!-- SẢN PHẨM ĐÃ ĐẶT -->
-                    <div class="section-title">🛒 Sản phẩm đã đặt</div>
+                    <div class="section-title"> Sản phẩm đã đặt</div>
                     <div class="order-info-box">
                         <c:set var="total" value="0" />
                         <c:forEach var="item" items="${orderedItems}">
@@ -178,7 +178,7 @@
                     <c:if test="${orderInfo.payment == 'qr' or orderInfo.payment == 'bank'}">
                     <div style="background:#fff8e1; border:1px solid #ffc107; border-radius:8px;
                                 padding:16px; font-size:13px; margin-bottom:20px;">
-                        <strong>⚠️ Lưu ý thanh toán:</strong><br>
+                        <strong> Lưu ý thanh toán:</strong><br>
                         Vui lòng chuyển khoản đúng số tiền
                         <strong style="color:#e00;">
                             <fmt:formatNumber value="${total}" type="number" maxFractionDigits="0"/>đ
