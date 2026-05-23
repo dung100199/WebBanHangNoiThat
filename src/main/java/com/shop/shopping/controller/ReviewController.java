@@ -44,7 +44,7 @@ public class ReviewController {
         review.setComment(comment != null ? comment.trim() : "");
         reviewRepo.save(review);
 
-        redirectAttrs.addFlashAttribute("reviewSuccess", "✅ Cảm ơn bạn đã đánh giá!");
+        redirectAttrs.addFlashAttribute("reviewSuccess", " Cảm ơn bạn đã đánh giá!");
         return "redirect:/product/" + productId;
     }
 
@@ -60,7 +60,7 @@ public class ReviewController {
         if (!"ADMIN".equals(role)) return "redirect:/home";
 
         reviewRepo.deleteById(reviewId);
-        redirectAttrs.addFlashAttribute("message", "✅ Đã xóa đánh giá #" + reviewId);
+        redirectAttrs.addFlashAttribute("message", " Đã xóa đánh giá #" + reviewId);
 
         // Nếu xóa từ trang product-detail thì quay lại trang đó
         if (productId != null) {
@@ -87,7 +87,7 @@ public class ReviewController {
             review.setAdminReply(reply.trim());
             review.setRepliedAt(new Date());
             reviewRepo.save(review);
-            redirectAttrs.addFlashAttribute("message", "✅ Đã trả lời đánh giá!");
+            redirectAttrs.addFlashAttribute("message", " Đã trả lời đánh giá!");
         }
 
         if (productId != null) {
@@ -112,7 +112,7 @@ public class ReviewController {
             review.setAdminReply(null);
             review.setRepliedAt(null);
             reviewRepo.save(review);
-            redirectAttrs.addFlashAttribute("message", "✅ Đã xóa trả lời!");
+            redirectAttrs.addFlashAttribute("message", " Đã xóa trả lời!");
         }
 
         if (productId != null) {

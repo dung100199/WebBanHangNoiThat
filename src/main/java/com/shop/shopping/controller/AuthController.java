@@ -67,7 +67,7 @@ public class AuthController {
             return "auth";
         }
 
-        // ✅ Lấy cart guest (nếu có) trước khi set session
+        //  Lấy cart guest (nếu có) trước khi set session
         List<CartItem> sessionCart = (List<CartItem>) session.getAttribute("cart");
 
         // Set thông tin đăng nhập vào session
@@ -75,7 +75,7 @@ public class AuthController {
         session.setAttribute("role", userOpt.get().getRole());
         session.setAttribute("fullname", userOpt.get().getFullname());
 
-        // ✅ Load cart từ DB
+        //  Load cart từ DB
         List<CartItem> dbCart = cartService.loadCartFromDB(email);
 
         // ✅ Merge cart guest vào cart DB (nếu guest đã thêm hàng trước khi login)

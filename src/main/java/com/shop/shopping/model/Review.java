@@ -24,7 +24,7 @@ public class Review {
     @Column(name = "created_at")
     private Date createdAt;
 
-    // ✅ Admin reply
+    //  Admin reply
     @Column(name = "admin_reply", columnDefinition = "TEXT")
     private String adminReply;
 

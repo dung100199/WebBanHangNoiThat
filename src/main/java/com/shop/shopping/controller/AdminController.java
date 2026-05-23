@@ -60,7 +60,7 @@ public class AdminController {
         product.setImage(imageUrl);
         repo.save(product);
 
-        redirectAttrs.addFlashAttribute("message", "✅ Đã thêm sản phẩm: " + name);
+        redirectAttrs.addFlashAttribute("message", " Đã thêm sản phẩm: " + name);
         return "redirect:/admin";
     }
 
@@ -98,11 +98,11 @@ public class AdminController {
             workbook.close();
 
         } catch (Exception e) {
-            redirectAttrs.addFlashAttribute("message", "❌ Lỗi khi import: " + e.getMessage());
+            redirectAttrs.addFlashAttribute("message", " Lỗi khi import: " + e.getMessage());
             return "redirect:/admin";
         }
 
-        redirectAttrs.addFlashAttribute("message", "✅ Import thành công " + count + " sản phẩm!");
+        redirectAttrs.addFlashAttribute("message", " Import thành công " + count + " sản phẩm!");
         return "redirect:/admin";
     }
 
@@ -113,7 +113,7 @@ public class AdminController {
                                 RedirectAttributes redirectAttrs) {
         if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
         repo.deleteById(id);
-        redirectAttrs.addFlashAttribute("message", "✅ Đã xóa sản phẩm!");
+        redirectAttrs.addFlashAttribute("message", " Đã xóa sản phẩm!");
         return "redirect:/admin";
     }
 
@@ -125,7 +125,7 @@ public class AdminController {
         if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/home";
 
         if (ids == null || ids.isEmpty()) {
-            redirectAttrs.addFlashAttribute("message", "⚠️ Chưa chọn sản phẩm nào!");
+            redirectAttrs.addFlashAttribute("message", " Chưa chọn sản phẩm nào!");
             return "redirect:/admin";
         }
 
@@ -133,7 +133,7 @@ public class AdminController {
             repo.deleteById(id);
         }
 
-        redirectAttrs.addFlashAttribute("message", "✅ Đã xóa " + ids.size() + " sản phẩm!");
+        redirectAttrs.addFlashAttribute("message", " Đã xóa " + ids.size() + " sản phẩm!");
         return "redirect:/admin";
     }
 
@@ -149,7 +149,7 @@ public class AdminController {
             order.setStatus(status);
             orderRepo.save(order);
         }
-        redirectAttrs.addFlashAttribute("message", "✅ Đã cập nhật trạng thái đơn #" + orderId);
+        redirectAttrs.addFlashAttribute("message", " Đã cập nhật trạng thái đơn #" + orderId);
         return "redirect:/admin";
     }
 
@@ -196,7 +196,7 @@ public class AdminController {
         }
 
         repo.save(product);
-        redirectAttrs.addFlashAttribute("message", "✅ Đã cập nhật sản phẩm: " + name);
+        redirectAttrs.addFlashAttribute("message", " Đã cập nhật sản phẩm: " + name);
         return "redirect:/admin";
     }
 }

@@ -266,14 +266,14 @@
                             <%-- ✅ Hiển thị reply đã có (tất cả user đều thấy) --%>
                             <c:if test="${not empty r.adminReply}">
                                 <div class="admin-reply-box">
-                                    <div class="reply-label">💬 Phản hồi từ cửa hàng:</div>
+                                    <div class="reply-label"> Phản hồi từ cửa hàng:</div>
                                     <div>${r.adminReply}</div>
                                     <%-- Admin thấy thêm nút sửa/xóa reply --%>
                                     <c:if test="${sessionScope.role == 'ADMIN'}">
                                         <div class="d-flex gap-2 mt-2">
                                             <button type="button"
                                                     onclick="toggleReplyForm('reply-form-${r.id}')"
-                                                    class="btn btn-warning btn-admin-sm">✏️ Sửa reply</button>
+                                                    class="btn btn-warning btn-admin-sm"> Sửa reply</button>
                                             <form action="/admin/review/delete-reply" method="post" style="margin:0;">
                                                 <input type="hidden" name="reviewId" value="${r.id}">
                                                 <input type="hidden" name="productId" value="${product.id}">
@@ -292,7 +292,7 @@
                                      class="admin-reply-form"
                                      style="${not empty r.adminReply ? 'display:none;' : ''}">
                                     <div style="font-size:12px; font-weight:700; color:#856404; margin-bottom:6px;">
-                                        💬 ${not empty r.adminReply ? 'Sửa' : 'Trả lời'} đánh giá này:
+                                         ${not empty r.adminReply ? 'Sửa' : 'Trả lời'} đánh giá này:
                                     </div>
                                     <form action="/admin/review/reply" method="post">
                                         <input type="hidden" name="reviewId" value="${r.id}">
@@ -302,7 +302,7 @@
                                                   required>${r.adminReply}</textarea>
                                         <div class="d-flex gap-2">
                                             <button type="submit" class="btn btn-primary btn-admin-sm">
-                                                ✅ Gửi phản hồi
+                                                 Gửi phản hồi
                                             </button>
                                             <c:if test="${not empty r.adminReply}">
                                                 <button type="button"
