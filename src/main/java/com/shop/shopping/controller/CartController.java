@@ -18,26 +18,18 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.shop.shopping.model.Order;
 
 @Controller
 public class CartController {
 
-    @Autowired
-    private ProductRepository productRepo;
-
-    @Autowired
-    private OrderRepository orderRepo;
-
-    @Autowired
-    private OrderItemRepository orderItemRepo;
-
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private CartService cartService;
+    @Autowired private ProductRepository productRepo;
+    @Autowired private OrderRepository orderRepo;
+    @Autowired private OrderItemRepository orderItemRepo;
+    @Autowired private EmailService emailService;
+    @Autowired private CartService cartService;
 
     // ================= HELPER =================
 
@@ -45,32 +37,42 @@ public class CartController {
         return (String) session.getAttribute("userEmail");
     }
 
+    private List<CartItem> getCart(HttpSession session) {
+        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
+        return cart != null ? cart : new ArrayList<>();
+    }
+
+    private boolean variantEquals(String a, String b) {
+        String va = a != null ? a : "";
+        String vb = b != null ? b : "";
+        return va.equals(vb);
+    }
+
     private Map<String, Object> buildCartResponse(List<CartItem> cart) {
-        Map<String, Object> response = new HashMap<>();
         double total = 0;
         int totalItems = 0;
         List<Map<String, Object>> cartItems = new ArrayList<>();
 
-        if (cart == null) {
-            cart = new ArrayList<>();
-        }
+        if (cart == null) cart = new ArrayList<>();
 
         for (CartItem item : cart) {
             total += item.getProduct().getPrice() * item.getQuantity();
             totalItems += item.getQuantity();
 
             Map<String, Object> itemData = new HashMap<>();
-            itemData.put("id", item.getProduct().getId());
-            itemData.put("name", item.getProduct().getName());
-            itemData.put("image", item.getProduct().getImage());
-            itemData.put("price", item.getProduct().getPrice());
+            itemData.put("id",       item.getProduct().getId());
+            itemData.put("name",     item.getProduct().getName());
+            itemData.put("image",    item.getProduct().getImage());
+            itemData.put("price",    item.getProduct().getPrice());
             itemData.put("quantity", item.getQuantity());
+            itemData.put("variant",  item.getVariant() != null ? item.getVariant() : "");
             cartItems.add(itemData);
         }
 
-        response.put("success", true);
-        response.put("cart", cartItems);
-        response.put("total", total);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success",    true);
+        response.put("cart",       cartItems);
+        response.put("total",      total);
         response.put("totalItems", totalItems);
         return response;
     }
@@ -79,13 +81,7 @@ public class CartController {
 
     @GetMapping("/cart")
     public String viewCart(HttpSession session, Model model) {
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-
-        if (cart == null) {
-            cart = new ArrayList<>();
-        }
-
-        model.addAttribute("cart", cart);
+        model.addAttribute("cart", getCart(session));
         return "cart";
     }
 
@@ -94,27 +90,23 @@ public class CartController {
     @GetMapping("/add-to-cart")
     public String addToCart(@RequestParam int id,
                             @RequestParam(defaultValue = "1") int qty,
+                            @RequestParam(defaultValue = "") String variant,
                             HttpSession session) {
-
         Product product = productRepo.findById(id).orElse(null);
         if (product == null) return "redirect:/home";
 
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-        if (cart == null) cart = new ArrayList<>();
-
+        List<CartItem> cart = getCart(session);
         boolean found = false;
         for (CartItem item : cart) {
-            if (item.getProduct().getId() == id) {
+            if (item.getProduct().getId() == id && variantEquals(item.getVariant(), variant)) {
                 item.setQuantity(item.getQuantity() + qty);
                 found = true;
                 break;
             }
         }
-        if (!found) cart.add(new CartItem(product, qty));
-
+        if (!found) cart.add(new CartItem(product, qty, variant));
         session.setAttribute("cart", cart);
 
-        // ✅ Sync DB nếu đã đăng nhập
         String email = getEmail(session);
         if (email != null) cartService.addItemToDB(email, id, qty);
 
@@ -124,35 +116,57 @@ public class CartController {
     // ================= BUY NOW =================
 
     @GetMapping("/buy-now")
-public String buyNow(@RequestParam int id,
-                     @RequestParam(defaultValue = "1") int qty,  // ✅ thêm tham số qty
-                     HttpSession session) {
+    public String buyNow(@RequestParam int id,
+                         @RequestParam(defaultValue = "1") int qty,
+                         @RequestParam(defaultValue = "") String variant,
+                         HttpSession session) {
+        Product product = productRepo.findById(id).orElse(null);
+        if (product == null) return "redirect:/home";
 
-    Product product = productRepo.findById(id).orElse(null);
-    if (product == null) return "redirect:/home";
+        List<CartItem> cart = new ArrayList<>();
+        cart.add(new CartItem(product, qty, variant));
+        session.setAttribute("cart", cart);
 
-    List<CartItem> cart = new ArrayList<>();
-    cart.add(new CartItem(product, qty));  // ✅ dùng qty thay vì 1
-    session.setAttribute("cart", cart);
-
-    return "redirect:/checkout";
-}
+        return "redirect:/checkout";
+    }
 
     // ================= CHECKOUT =================
 
     @GetMapping("/checkout")
     public String checkout(HttpSession session, Model model) {
-        String userEmail = (String) session.getAttribute("userEmail");
-        if (userEmail == null) {
-            return "redirect:/login?redirect=checkout";
-        }
+        if (getEmail(session) == null) return "redirect:/login?redirect=checkout";
 
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-        if (cart == null || cart.isEmpty()) {
-            return "redirect:/home";
-        }
+        List<CartItem> cart = getCart(session);
+        if (cart.isEmpty()) return "redirect:/home";
 
         model.addAttribute("cart", cart);
+        return "checkout";
+    }
+
+    // ================= CHECKOUT SELECTED =================
+
+    @PostMapping("/checkout-selected")
+    public String checkoutSelected(@RequestParam(value = "ids") List<Integer> ids,
+                                   HttpSession session) {
+        List<CartItem> cart = getCart(session);
+        if (cart.isEmpty()) return "redirect:/cart";
+
+        List<CartItem> selectedItems = cart.stream()
+                .filter(item -> ids.contains(item.getProduct().getId()))
+                .collect(Collectors.toList());
+
+        session.setAttribute("selectedCart", selectedItems);
+        return "redirect:/checkout-selected-page";
+    }
+
+    @GetMapping("/checkout-selected-page")
+    public String checkoutSelectedPage(HttpSession session, Model model) {
+        if (getEmail(session) == null) return "redirect:/login?redirect=checkout";
+
+        List<CartItem> selectedItems = (List<CartItem>) session.getAttribute("selectedCart");
+        if (selectedItems == null || selectedItems.isEmpty()) return "redirect:/cart";
+
+        model.addAttribute("cart", selectedItems);
         return "checkout";
     }
 
@@ -169,19 +183,17 @@ public String buyNow(@RequestParam int id,
             @RequestParam String payment,
             HttpSession session) {
 
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-        if (cart == null || cart.isEmpty()) return "redirect:/cart";
+        List<CartItem> cart = getCart(session);
+        if (cart.isEmpty()) return "redirect:/cart";
 
-        String userEmail = (String) session.getAttribute("userEmail");
+        String userEmail = getEmail(session);
         if (userEmail == null) userEmail = email;
 
-        // Tính tổng tiền
         double total = 0;
         for (CartItem item : cart) {
             total += item.getProduct().getPrice() * item.getQuantity();
         }
 
-        // Lưu đơn hàng
         Order order = new Order();
         order.setUserEmail(userEmail);
         order.setFullname(fullname);
@@ -194,7 +206,6 @@ public String buyNow(@RequestParam int id,
         order.setTotal(total);
         orderRepo.save(order);
 
-        // Lưu từng sản phẩm trong đơn
         for (CartItem item : cart) {
             OrderItem oi = new OrderItem();
             oi.setOrderId(order.getId());
@@ -206,21 +217,18 @@ public String buyNow(@RequestParam int id,
             orderItemRepo.save(oi);
         }
 
-        // ✅ Xóa cart trong DB sau khi đặt hàng thành công
         String sessionEmail = getEmail(session);
         if (sessionEmail != null) cartService.clearCartInDB(sessionEmail);
 
-        // Lưu vào session để hiển thị trang xác nhận
         session.setAttribute("orderedItems", cart);
         session.setAttribute("orderInfo", order);
         session.removeAttribute("cart");
+        session.removeAttribute("selectedCart");
 
-        // Gửi email xác nhận
-        Order savedOrder = orderRepo.findById(order.getId()).orElse(order);
         try {
-            emailService.sendOrderConfirmation(savedOrder);
+            emailService.sendOrderConfirmation(orderRepo.findById(order.getId()).orElse(order));
         } catch (Exception e) {
-            System.err.println("Không gửi được email: " + e.getMessage());
+            System.err.println("Khong gui duoc email: " + e.getMessage());
         }
 
         return "redirect:/order-success";
@@ -230,7 +238,7 @@ public String buyNow(@RequestParam int id,
 
     @GetMapping("/order-success")
     public String orderSuccess(HttpSession session, Model model) {
-        model.addAttribute("orderInfo", session.getAttribute("orderInfo"));
+        model.addAttribute("orderInfo",    session.getAttribute("orderInfo"));
         model.addAttribute("orderedItems", session.getAttribute("orderedItems"));
         return "order-success";
     }
@@ -239,11 +247,10 @@ public String buyNow(@RequestParam int id,
 
     @GetMapping("/my-orders")
     public String myOrders(HttpSession session, Model model) {
-        String userEmail = (String) session.getAttribute("userEmail");
+        String userEmail = getEmail(session);
         if (userEmail == null) return "redirect:/login";
 
-        List<Order> orders = orderRepo.findByUserEmailOrderByCreatedAtDesc(userEmail);
-        model.addAttribute("orders", orders);
+        model.addAttribute("orders", orderRepo.findByUserEmailOrderByCreatedAtDesc(userEmail));
         model.addAttribute("orderItemRepo", orderItemRepo);
         return "my-orders";
     }
@@ -252,16 +259,13 @@ public String buyNow(@RequestParam int id,
 
     @GetMapping("/cart-plus")
     public String cartPlus(@RequestParam int id, HttpSession session) {
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-        if (cart != null) {
-            for (CartItem item : cart) {
-                if (item.getProduct().getId() == id) {
-                    item.setQuantity(item.getQuantity() + 1);
-                    // ✅ Sync DB
-                    String email = getEmail(session);
-                    if (email != null) cartService.updateQuantityInDB(email, id, item.getQuantity());
-                    break;
-                }
+        List<CartItem> cart = getCart(session);
+        for (CartItem item : cart) {
+            if (item.getProduct().getId() == id) {
+                item.setQuantity(item.getQuantity() + 1);
+                String email = getEmail(session);
+                if (email != null) cartService.updateQuantityInDB(email, id, item.getQuantity());
+                break;
             }
         }
         return "redirect:/cart";
@@ -269,23 +273,18 @@ public String buyNow(@RequestParam int id,
 
     @GetMapping("/cart-minus")
     public String cartMinus(@RequestParam int id, HttpSession session) {
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-        if (cart != null) {
-            for (CartItem item : cart) {
-                if (item.getProduct().getId() == id) {
-                    if (item.getQuantity() > 1) {
-                        item.setQuantity(item.getQuantity() - 1);
-                        // ✅ Sync DB cập nhật số lượng
-                        String email = getEmail(session);
-                        if (email != null) cartService.updateQuantityInDB(email, id, item.getQuantity());
-                    } else {
-                        cart.remove(item);
-                        // ✅ Sync DB xóa sản phẩm
-                        String email = getEmail(session);
-                        if (email != null) cartService.removeItemFromDB(email, id);
-                    }
-                    break;
+        List<CartItem> cart = getCart(session);
+        for (CartItem item : cart) {
+            if (item.getProduct().getId() == id) {
+                String email = getEmail(session);
+                if (item.getQuantity() > 1) {
+                    item.setQuantity(item.getQuantity() - 1);
+                    if (email != null) cartService.updateQuantityInDB(email, id, item.getQuantity());
+                } else {
+                    cart.remove(item);
+                    if (email != null) cartService.removeItemFromDB(email, id);
                 }
+                break;
             }
         }
         return "redirect:/cart";
@@ -295,25 +294,36 @@ public String buyNow(@RequestParam int id,
 
     @GetMapping("/clear-cart")
     public String clearCart(HttpSession session) {
-        // ✅ Sync DB
         String email = getEmail(session);
         if (email != null) cartService.clearCartInDB(email);
-
         session.removeAttribute("cart");
         return "redirect:/cart";
     }
 
     @GetMapping("/remove-cart")
     public String removeCart(@RequestParam int id, HttpSession session) {
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-        if (cart != null) {
-            cart.removeIf(item -> item.getProduct().getId() == id);
-            session.setAttribute("cart", cart);
+        List<CartItem> cart = getCart(session);
+        cart.removeIf(item -> item.getProduct().getId() == id);
+        session.setAttribute("cart", cart);
 
-            // ✅ Sync DB
-            String email = getEmail(session);
-            if (email != null) cartService.removeItemFromDB(email, id);
-        }
+        String email = getEmail(session);
+        if (email != null) cartService.removeItemFromDB(email, id);
+
+        return "redirect:/cart";
+    }
+
+    // ================= REMOVE MULTIPLE =================
+
+    @PostMapping("/remove-cart-multiple")
+    public String removeCartMultiple(@RequestParam(value = "ids") List<Integer> ids,
+                                     HttpSession session) {
+        List<CartItem> cart = getCart(session);
+        cart.removeIf(item -> ids.contains(item.getProduct().getId()));
+        session.setAttribute("cart", cart);
+
+        String email = getEmail(session);
+        if (email != null) ids.forEach(id -> cartService.removeItemFromDB(email, id));
+
         return "redirect:/cart";
     }
 
@@ -323,26 +333,24 @@ public String buyNow(@RequestParam int id,
     public String cancelOrder(@RequestParam int orderId,
                               HttpSession session,
                               RedirectAttributes redirectAttrs) {
-
-        String userEmail = (String) session.getAttribute("userEmail");
+        String userEmail = getEmail(session);
         if (userEmail == null) return "redirect:/login";
 
         Order order = orderRepo.findById(orderId).orElse(null);
-
         if (order == null || !order.getUserEmail().equals(userEmail)) {
-            redirectAttrs.addFlashAttribute("error", "❌ Không tìm thấy đơn hàng!");
+            redirectAttrs.addFlashAttribute("error", "Không tìm thấy đơn hàng!");
             return "redirect:/my-orders";
         }
 
         if (!order.getStatus().equals("Chờ xác nhận")) {
-            redirectAttrs.addFlashAttribute("error", "❌ Không thể hủy đơn hàng đang " + order.getStatus());
+            redirectAttrs.addFlashAttribute("error", "Không thể hủy đơn hàng đang " + order.getStatus());
             return "redirect:/my-orders";
         }
 
         order.setStatus("Đã hủy");
         orderRepo.save(order);
 
-        redirectAttrs.addFlashAttribute("message", "✅ Đã hủy đơn hàng #" + orderId);
+        redirectAttrs.addFlashAttribute("message", "Đã hủy đơn hàng #" + orderId);
         return "redirect:/my-orders";
     }
 
@@ -352,32 +360,28 @@ public String buyNow(@RequestParam int id,
     @ResponseBody
     public Map<String, Object> addToCartAjax(@RequestParam int id,
                                              @RequestParam(defaultValue = "1") int qty,
+                                             @RequestParam(defaultValue = "") String variant,
                                              HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-
         Product product = productRepo.findById(id).orElse(null);
         if (product == null) {
+            Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "Sản phẩm không tồn tại");
             return response;
         }
 
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-        if (cart == null) cart = new ArrayList<>();
-
+        List<CartItem> cart = getCart(session);
         boolean found = false;
         for (CartItem item : cart) {
-            if (item.getProduct().getId() == id) {
+            if (item.getProduct().getId() == id && variantEquals(item.getVariant(), variant)) {
                 item.setQuantity(item.getQuantity() + qty);
                 found = true;
                 break;
             }
         }
-        if (!found) cart.add(new CartItem(product, qty));
-
+        if (!found) cart.add(new CartItem(product, qty, variant));
         session.setAttribute("cart", cart);
 
-        // ✅ Sync DB nếu đã đăng nhập
         String email = getEmail(session);
         if (email != null) cartService.addItemToDB(email, id, qty);
 
@@ -389,22 +393,14 @@ public String buyNow(@RequestParam int id,
     @PostMapping("/remove-cart-ajax")
     @ResponseBody
     public Map<String, Object> removeCartAjax(@RequestParam int id, HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
+        List<CartItem> cart = getCart(session);
+        cart.removeIf(item -> item.getProduct().getId() == id);
+        session.setAttribute("cart", cart);
 
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-        if (cart != null) {
-            cart.removeIf(item -> item.getProduct().getId() == id);
-            session.setAttribute("cart", cart);
+        String email = getEmail(session);
+        if (email != null) cartService.removeItemFromDB(email, id);
 
-            // ✅ Sync DB nếu đã đăng nhập
-            String email = getEmail(session);
-            if (email != null) cartService.removeItemFromDB(email, id);
-
-            return buildCartResponse(cart);
-        }
-
-        response.put("success", false);
-        return response;
+        return buildCartResponse(cart);
     }
 
     // ================= GET CART DATA =================
@@ -412,7 +408,6 @@ public String buyNow(@RequestParam int id,
     @GetMapping("/cart-data")
     @ResponseBody
     public Map<String, Object> getCartData(HttpSession session) {
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-        return buildCartResponse(cart);
+        return buildCartResponse(getCart(session));
     }
 }

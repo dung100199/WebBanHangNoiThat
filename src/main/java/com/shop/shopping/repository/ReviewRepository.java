@@ -17,4 +17,8 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
     @Query("SELECT COUNT(r) FROM Review r WHERE r.productId = :productId")
     Long countByProductId(@Param("productId") int productId);
+
+    void deleteByProductId(int productId);
+
+    void deleteByProductIdIn(Iterable<Integer> productIds);
 }

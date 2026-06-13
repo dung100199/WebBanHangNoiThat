@@ -97,7 +97,7 @@
                 <div class="success-icon">✓</div>
                 <div class="success-title">Đặt hàng thành công!</div>
                 <div class="success-subtitle">
-                    Cảm ơn bạn đã mua hàng tại <strong>MVKE Furniture</strong>.<br>
+                    Cảm ơn bạn đã mua hàng tại <strong>MOHO</strong>.<br>
                     Chúng tôi sẽ liên hệ xác nhận đơn hàng trong thời gian sớm nhất.
                 </div>
 
@@ -186,8 +186,8 @@
                         đến tài khoản:<br>
                         Ngân hàng: <strong>Vietcombank</strong> |
                         STK: <strong>1039914852</strong> |
-                        Chủ TK: <strong>MVKE FURNITURE</strong><br>
-                        Nội dung: <strong>Thanh toan don hang MVKE</strong>
+                        Chủ TK: <strong>MOHO</strong><br>
+                        Nội dung: <strong>Thanh toan don hang MOHO</strong>
                     </div>
                     </c:if>
                 </div>

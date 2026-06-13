@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MVKE Shop</title>
+    <title>MOHO Shop</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -110,9 +110,9 @@
         </div>
 
         <div class="col-md-6">
-            <h2>Về MVKE</h2>
+            <h2>Về MOHO</h2>
             <p>
-                MVKE là thương hiệu nội thất hiện đại, mang đến giải pháp không gian sống
+                MOHO là thương hiệu nội thất hiện đại, mang đến giải pháp không gian sống
                 tinh tế, tiện nghi và đậm chất cá nhân.
             </p>
 

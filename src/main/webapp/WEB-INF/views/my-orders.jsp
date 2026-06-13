@@ -108,16 +108,16 @@
                         <span>
                             <c:choose>
                                 <c:when test="${order.status == 'Chờ xác nhận'}">
-                                    <span class="status-badge status-cho">⏳ Chờ xác nhận</span>
+                                    <span class="status-badge status-cho"> Chờ xác nhận</span>
                                 </c:when>
                                 <c:when test="${order.status == 'Đã xác nhận'}">
-                                    <span class="status-badge status-xac">✅ Đã xác nhận</span>
+                                    <span class="status-badge status-xac"> Đã xác nhận</span>
                                 </c:when>
                                 <c:when test="${order.status == 'Đang giao'}">
-                                    <span class="status-badge status-giao">🚚 Đang giao</span>
+                                    <span class="status-badge status-giao"> Đang giao</span>
                                 </c:when>
                                 <c:when test="${order.status == 'Hoàn thành'}">
-                                    <span class="status-badge status-giao">✓ Hoàn thành</span>
+                                    <span class="status-badge status-giao"> Hoàn thành</span>
                                 </c:when>
                                 <c:otherwise>
                                     <span class="status-badge status-hoan">${order.status}</span>

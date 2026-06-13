@@ -18,6 +18,29 @@ public class Product {
 
     private String category;
 
+  /** ID sản phẩm trên nguồn catalog (để đồng bộ) */
+  @Column(name = "moho_product_id", unique = true)
+  private Long externalProductId;
+
+  /** Giá gốc trước khuyến mãi */
+  private Double compareAtPrice;
+
+  @Column(name = "product_type")
+  private String productType;
+
+  private String vendor;
+
+  @Column(columnDefinition = "LONGTEXT")
+  private String description;
+
+  /** JSON: [{"name":"Màu sắc","values":["Be","Olive"]}, ...] */
+  @Column(name = "options_json", columnDefinition = "TEXT")
+  private String optionsJson;
+
+  /** JSON: danh sách biến thể (màu, kích thước, giá, SKU) */
+  @Column(name = "variants_json", columnDefinition = "LONGTEXT")
+  private String variantsJson;
+
     // ===== GETTER & SETTER =====
 
     public int getId() {
@@ -58,5 +81,61 @@ public class Product {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public Long getExternalProductId() {
+        return externalProductId;
+    }
+
+    public void setExternalProductId(Long externalProductId) {
+        this.externalProductId = externalProductId;
+    }
+
+    public Double getCompareAtPrice() {
+        return compareAtPrice;
+    }
+
+    public void setCompareAtPrice(Double compareAtPrice) {
+        this.compareAtPrice = compareAtPrice;
+    }
+
+    public String getProductType() {
+        return productType;
+    }
+
+    public void setProductType(String productType) {
+        this.productType = productType;
+    }
+
+    public String getVendor() {
+        return vendor;
+    }
+
+    public void setVendor(String vendor) {
+        this.vendor = vendor;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getOptionsJson() {
+        return optionsJson;
+    }
+
+    public void setOptionsJson(String optionsJson) {
+        this.optionsJson = optionsJson;
+    }
+
+    public String getVariantsJson() {
+        return variantsJson;
+    }
+
+    public void setVariantsJson(String variantsJson) {
+        this.variantsJson = variantsJson;
     }
 }

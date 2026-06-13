@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
@@ -316,8 +316,16 @@
                             </a>
                         </h5>
 
-                        <p style="color:red; font-weight:bold;">
-                            <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/> VND
+                        <p style="font-weight:bold;">
+                            <c:if test="${p.compareAtPrice != null && p.compareAtPrice > p.price}">
+                                <span style="text-decoration:line-through;color:#999;font-weight:normal;">
+                                    <fmt:formatNumber value="${p.compareAtPrice}" type="number" maxFractionDigits="0"/> VND
+                                </span>
+                                <br>
+                            </c:if>
+                            <span style="color:red;">
+                                <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/> VND
+                            </span>
                         </p>
 
                         <c:if test="${sessionScope.role != 'ADMIN'}">

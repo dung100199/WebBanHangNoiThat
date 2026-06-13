@@ -26,9 +26,9 @@ public class EmailService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        helper.setFrom(fromEmail, "MVKE Furniture"); // ← tên hiển thị
+        helper.setFrom(fromEmail, "MOHO");
         helper.setTo(order.getEmail().isEmpty() ? order.getUserEmail() : order.getEmail());
-        helper.setSubject("✅ Xác nhận đơn hàng #" + order.getId() + " - MVKE Furniture");
+        helper.setSubject("✅ Xác nhận đơn hàng #" + order.getId() + " - MOHO");
         helper.setText(buildEmailContent(order), true);
 
         mailSender.send(message);
@@ -69,7 +69,7 @@ public class EmailService {
 
              // Header
              + "<div style='background:#1a2a5e; padding:30px; text-align:center;'>"
-             + "<h1 style='color:white; margin:0; font-size:24px;'>MVKE Furniture</h1>"
+             + "<h1 style='color:white; margin:0; font-size:24px;'>MOHO</h1>"
              + "<p style='color:#aac4ff; margin:8px 0 0;'>Cảm ơn bạn đã đặt hàng!</p>"
              + "</div>"
 
@@ -114,7 +114,7 @@ public class EmailService {
                 ? "<div style='background:#fff8e1; border:1px solid #ffc107; border-radius:8px; padding:16px; margin-top:20px; font-size:13px;'>"
                   + "<strong>⚠️ Vui lòng chuyển khoản:</strong><br>"
                   + "Ngân hàng: <strong>Vietcombank</strong> | STK: <strong>1039914852</strong><br>"
-                  + "Chủ TK: <strong>MVKE FURNITURE</strong><br>"
+                  + "Chủ TK: <strong>MOHO</strong><br>"
                   + "Số tiền: <strong style='color:#e00;'>" + fmt.format((long) order.getTotal()) + "đ</strong><br>"
                   + "Nội dung: <strong>Thanh toan don hang #" + order.getId() + "</strong>"
                   + "</div>"
@@ -124,8 +124,8 @@ public class EmailService {
 
              // Footer
              + "<div style='background:#f5f5f5; padding:20px; text-align:center; font-size:12px; color:#888;'>"
-             + "<p>MVKE Furniture - Nội thất hiện đại</p>"
-             + "<p>Hotline: 0901234567 | Email: mvke@gmail.com</p>"
+             + "<p>MOHO - Nội thất hiện đại</p>"
+             + "<p>Website: moho.com.vn</p>"
              + "</div>"
 
              + "</div></body></html>";
